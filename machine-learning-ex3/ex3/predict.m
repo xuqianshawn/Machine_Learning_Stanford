@@ -20,7 +20,20 @@ p = zeros(size(X, 1), 1);
 %       information see 'help max'. If your examples are in rows, then, you
 %       can use max(A, [], 2) to obtain the max for each row.
 %
+X = [ones(m, 1) X];
+% map layer 1 to layer 2
+z1=X*Theta1';
 
+h1=sigmoid(z1);
+
+%map layer 2 to layer 3
+h1=[ones(m, 1) h1];
+% Converts to matrix of 5000 exampls x num_labels 
+z2=h1*Theta2';
+h2=sigmoid(z2);
+
+% pval returns the highest value in each row, while p returns the position in each row
+[pval, p]=max(h2,[],2);  
 
 
 

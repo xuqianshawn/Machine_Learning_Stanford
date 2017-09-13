@@ -37,6 +37,23 @@ grad = zeros(size(theta));
 %
 
 
+%J = ( (1 / m) * sum(-y'*log(sigmoid(X*theta)) - (1-y)'*log( 1 - sigmoid(X*theta))) ) + (lambda/(2*m))*sum(theta(2:length(theta)).*theta(2:length(theta))) ;
+
+%grad = (1 / m) * sum( X .* repmat((sigmoid(X*theta) - y), 1, size(X,2)) );
+
+%grad(:,2:length(grad)) = grad(:,2:length(grad)) + (lambda/m)*theta(2:length(theta))';
+
+n=length(theta);
+z=X*theta;
+h=sigmoid(z);
+logisf=(-y)'*log(h)-(1-y)'*log(1-h);
+thetas=theta(2:n,1);
+J=((1/m).*sum(logisf))+(lambda/(2*m)).*sum(thetas.^2);
+
+
+temp=theta;
+temp(1)=0;
+grad=(1/m).*(X'*(h-y)+lambda.*temp);
 
 
 
@@ -46,7 +63,5 @@ grad = zeros(size(theta));
 
 
 % =============================================================
-
-grad = grad(:);
 
 end
