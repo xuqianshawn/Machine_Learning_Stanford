@@ -39,6 +39,50 @@ Theta2_grad = zeros(size(Theta2));
 %         cost function computation is correct by verifying the cost
 %         computed in ex4.m
 %
+Theta1 = reshape(nn_params(1:hidden_layer_size * (input_layer_size + 1)), ...
+                 hidden_layer_size, (input_layer_size + 1));
+
+Theta2 = reshape(nn_params((1 + (hidden_layer_size * (input_layer_size + 1))):end), ...
+                 num_labels, (hidden_layer_size + 1));
+
+% Setup some useful variables
+m = size(X, 1);
+         
+
+J = 0;
+Theta1_grad = zeros(size(Theta1));
+Theta2_grad = zeros(size(Theta2));
+
+
+% Add ones to the X data matrix
+X = [ones(m, 1) X];
+% Convert y from (1-10) class into num_labels vector
+yd = eye(num_labels);
+y = yd(y,:);
+ 
+%%% Map from Layer 1 to Layer 2
+a1=X;
+% Coverts to matrix of 5000 examples x 26 thetas
+z2=X*Theta1';
+% Sigmoid function converts to p between 0 to 1
+a2=sigmoid(z2);
+
+%%% Map from Layer 2 to Layer 3
+% Add ones to the h1 data matrix
+a2=[ones(m, 1) a2];
+% Converts to matrix of 5000 exampls x num_labels 
+z3=a2*Theta2';
+% Sigmoid function converts to p between 0 to 1
+a3=sigmoid(z3);
+
+
+logisf=(-y).*log(a3)-(1-y).*log(1-a3); % since y is now a matrix, so use dot product, unlike above
+
+Theta1s=Theta1(:,2:end);
+Theta2s=Theta2(:,2:end);
+J=((1/m).*sum(sum(logisf)))+(lambda/(2*m)).*(sum(sum(Theta1s.^2))+sum(sum(Theta2s.^2)));
+
+
 % Part 2: Implement the backpropagation algorithm to compute the gradients
 %         Theta1_grad and Theta2_grad. You should return the partial derivatives of
 %         the cost function with respect to Theta1 and Theta2 in Theta1_grad and
@@ -54,6 +98,21 @@ Theta2_grad = zeros(size(Theta2));
 %               over the training examples if you are implementing it for the 
 %               first time.
 %
+
+
+tridelta_1=0;
+tridelta_2=0;
+
+% compute delta, tridelta and big D
+	delta_3=a3-y;
+  z2=[ones(m,1) z2];
+	delta_2=delta_3*Theta2.*sigmoidGradient(z2);
+  delta_2=delta_2(:,2:end);
+	tridelta_1=tridelta_1+delta_2'*a1; % Same size as Theta1_grad (25x401)
+  tridelta_2=tridelta_2+delta_3'*a2; % Same size as Theta2_grad (10x26)
+	Theta1_grad=(1/m).*tridelta_1+(lambda/m) * [zeros(size(Theta1, 1), 1) Theta1(:,2:end)];
+  Theta2_grad=(1/m).*tridelta_2+(lambda/m) * [zeros(size(Theta2, 1), 1) Theta2(:,2:end)];
+
 % Part 3: Implement regularization with the cost function and gradients.
 %
 %         Hint: You can implement this around the code for
@@ -63,29 +122,10 @@ Theta2_grad = zeros(size(Theta2));
 %
 
 
+% Reshape nn_params back into the parameters Theta1 and Theta2, the weight matrices
+% for our 2 layer neural network
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-% -------------------------------------------------------------
-
-% =========================================================================
-
-% Unroll gradients
 grad = [Theta1_grad(:) ; Theta2_grad(:)];
-
 
 end
