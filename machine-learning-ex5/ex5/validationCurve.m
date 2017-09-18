@@ -40,7 +40,25 @@ error_val = zeros(length(lambda_vec), 1);
 %
 
 
+for i=1:length(lambda_vec)
+	lambda=lambda_vec(i);
+	[theta]=trainLinearReg(X, y, lambda);
+	lambda=0;	% Set to zero when calculating error since already been trained
+	% We are calc J as error not as cost. So, lambda should not be included when 
+	% calculating error for thetas that have been trained, else it will be biased 
+	% Refer to 2.1 of Exercise 5, error is computed without lambda
+	[e_train]=linearRegCostFunction(X, y, theta, lambda);
+	[e_val]=linearRegCostFunction(Xval, yval, theta, lambda);	% J over all CV set for new set of theta
 
+% Accumulating error from i=1:m
+	if (i==1)
+		error_train=e_train;
+		error_val=e_val;
+	else
+		error_train=[error_train; e_train];
+		error_val=[error_val; e_val];
+	end
+end
 
 
 
